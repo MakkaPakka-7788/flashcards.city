@@ -24,7 +24,7 @@ import { injectStyles } from './styles.js';
 import { suggestName, randomSeed } from './names.js';
 import { makeHeightSource } from './heightsource.js';
 import { paintRelief } from './Minimap.js';
-import { listWorlds, setActiveWorld } from '../../core/SaveSystem.js';
+import { listWorlds, setActiveWorld, importLegacySave } from '../../core/SaveSystem.js';
 
 export const name = 'menu';
 
@@ -173,6 +173,7 @@ export function showStartScreen(ctx, opts = {}) {
   on(els.newBtn, 'click', () => choose('new'));
   on(els.demoBtn, 'click', () => choose('demo'));
 
+  importLegacySave();
   const savedWorlds = listWorlds();
   if (savedWorlds.length) {
     const section = document.createElement('section');
@@ -330,7 +331,7 @@ function applyQuality(q, ctx) {
 function enterLoading(mode, seed, cityName) {
   root.dataset.phase = 'loading';
   els.loadName.textContent = cityName;
-  els.loadMeta.textContent = mode === 'demo' ? `Demo city · seed ${seed}` : `Empty map · seed ${seed}`;
+  els.loadMeta.textContent = mode === 'demo' ? `Demo city · seed ${seed}` : mode === 'load' ? `Saved world · seed ${seed}` : `Empty map · seed ${seed}`;
   els.help.dataset.emph = '1';
   els.helpNote.textContent = 'Read this while it builds';
   progress = { target: 0.03, shown: 0, text: mode === 'demo' ? 'Waking the city' : 'Shaping the land', stamp: performance.now(), timer: 0 };
