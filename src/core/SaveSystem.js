@@ -89,7 +89,9 @@ export function restoreZones(world, data) {
     const n = Number(key), type = types.get(Number(value));
     if (!Number.isFinite(n) || !type) continue;
     if (!groups.has(type)) groups.set(type, []);
-    groups.get(type).push({ cx: n % 65536, cz: Math.floor(n / 65536) });
+    let cx = ((n % 65536) + 65536) % 65536;
+    if (cx >= 32768) cx -= 65536;
+    groups.get(type).push({ cx, cz: (n - cx) / 65536 });
   }
   for (const [type, cells] of groups) api.paint(cells, type);
   api.refresh?.();
