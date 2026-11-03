@@ -24,6 +24,7 @@ import { injectStyles } from './styles.js';
 import { suggestName, randomSeed } from './names.js';
 import { makeHeightSource } from './heightsource.js';
 import { paintRelief } from './Minimap.js';
+import { listWorlds, setActiveWorld } from '../../core/SaveSystem.js';
 
 export const name = 'menu';
 
@@ -171,6 +172,53 @@ export function showStartScreen(ctx, opts = {}) {
   };
   on(els.newBtn, 'click', () => choose('new'));
   on(els.demoBtn, 'click', () => choose('demo'));
+
+  const savedWorlds = listWorlds();
+  if (savedWorlds.length) {
+    const section = document.createElement('section');
+    section.className = 'fm-saved-worlds';
+    const heading = document.createElement('div');
+    heading.className = 'fm-saved-worlds__heading';
+    heading.textContent = 'Continue a world';
+    const note = document.createElement('span');
+    note.textContent = 'Saved on this device';
+    heading.appendChild(note);
+    const list = document.createElement('div');
+    list.className = 'fm-saved-worlds__list';
+    for (const saved of savedWorlds) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'fm-choice fm-saved-world';
+      const body = document.createElement('span');
+      body.className = 'fm-choice__body';
+      const title = document.createElement('span');
+      title.className = 'fm-choice__title';
+      title.textContent = saved.name || 'Untitled world';
+      const desc = document.createElement('span');
+      desc.className = 'fm-choice__desc';
+      desc.textContent = saved.updatedAt ? new Date(saved.updatedAt).toLocaleString() : 'Saved world';
+      body.append(title, desc);
+      const arrow = document.createElement('span');
+      arrow.className = 'fm-choice__go';
+      arrow.textContent = '›';
+      button.append(body, arrow);
+      button.addEventListener('click', () => {
+        if (!setActiveWorld(saved.id)) return;
+        world.time.paused = wasPaused;
+        enterLoading('load', saved.seed, saved.name);
+        watchCoreProgress(events);
+        if (resolveChoice) {
+          const resolve = resolveChoice;
+          resolveChoice = null;
+          resolve({ mode: 'load', seed: saved.seed, cityName: saved.name, worldId: saved.id, quality: currentQuality });
+        }
+      });
+      list.appendChild(button);
+    }
+    section.append(heading, list);
+    root.querySelector('.fm-choices')?.after(section);
+  }
+
   on(els.form, 'submit', (e) => { e.preventDefault(); choose('new'); });
 
   // ---- keyboard -----------------------------------------------------------------------------
