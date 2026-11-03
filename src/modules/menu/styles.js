@@ -225,7 +225,7 @@ export const CSS = /* css */`
 .fm-saved-world .fm-choice__go{font-size:22px}
 .fm-saved-world__card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
 .fm-saved-world__actions{display:flex;gap:5px}
-.fm-saved-world__action{border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.055);color:#c8d0d7;padding:7px 8px;font:600 10px inherit;cursor:pointer}
+.fm-saved-world__action{border:1px solid rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.055);color:#c8d0d7;padding:7px 8px;font:600 10px system-ui,sans-serif;cursor:pointer}
 .fm-saved-world__action:hover{background:rgba(255,255,255,.12);color:#fff}
 .fm-saved-world__action--delete{color:#e59a92}
 
