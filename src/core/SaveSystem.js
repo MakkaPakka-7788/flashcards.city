@@ -46,7 +46,7 @@ export function setActiveWorld(worldId) {
 export function getActiveWorldId() { return localStorage.getItem(ACTIVE_KEY) || null; }
 
 function snapshot(world) {
-  const paint = world.zones?.api?.grid?.paint;
+  const paint = world.zones?.api?.getPaint?.() || [];
   return {
     version: 3, seed: world.seed, cityName: world.economy?.cityName || 'New Fable',
     economy: clean(world.economy), time: clean(world.time), env: clean(world.env),
@@ -54,7 +54,7 @@ function snapshot(world) {
       id: seg.id, type: seg.type || 'local',
       points: (seg.points || []).map(p => ({ x: Number(p.x) || 0, y: Number(p.y) || 0, z: Number(p.z) || 0 }))
     })).filter(seg => seg.points.length >= 2),
-    zones: paint ? [...paint.entries()] : [], buildings: clean(world.buildings?.list || [])
+    zones: paint, buildings: clean(world.buildings?.list || [])
   };
 }
 export function saveCity(world, worldId = getActiveWorldId()) {
@@ -80,15 +80,20 @@ export function restoreRoads(world, data) {
   roads.flush?.(); return true;
 }
 export function restoreZones(world, data) {
-  const api = world.zones?.api; if (!api || !Array.isArray(data?.zones)) return false;
+  const api = world.zones?.api;
+  if (!api || !Array.isArray(data?.zones)) return false;
   api.clear();
   const types = new Map([[1, 'res-low'], [2, 'res-high'], [3, 'com-low'], [4, 'com-high'], [5, 'ind'], [6, 'office']]);
+  const groups = new Map();
   for (const [key, value] of data.zones) {
-    const n = Number(key); if (!Number.isFinite(n)) continue;
-    const type = types.get(Number(value)); if (!type) continue;
-    api.paint([{ cx: n % 65536, cz: Math.floor(n / 65536) }], type);
+    const n = Number(key), type = types.get(Number(value));
+    if (!Number.isFinite(n) || !type) continue;
+    if (!groups.has(type)) groups.set(type, []);
+    groups.get(type).push({ cx: n % 65536, cz: Math.floor(n / 65536) });
   }
-  api.refresh?.(); return true;
+  for (const [type, cells] of groups) api.paint(cells, type);
+  api.refresh?.();
+  return true;
 }
 export function restoreBuildings(world, data) {
   const api = world.buildings?.api; if (!api || !Array.isArray(data?.buildings)) return false;
@@ -107,7 +112,16 @@ export function applyCityState(world, data) {
   if (!data) return false;
   if (data.economy) Object.assign(world.economy, data.economy);
   if (data.time) Object.assign(world.time, data.time);
-  if (data.env) Object.assign(world.env, data.env);
+  if (data.env) {
+    for (const [key, value] of Object.entries(data.env)) {
+      const current = world.env[key];
+      if (current && typeof current.set === 'function' && value && typeof value === 'object') {
+        if ('r' in value && 'g' in value && 'b' in value) current.setRGB(value.r, value.g, value.b);
+        else if ('x' in value && 'y' in value && 'z' in value) current.set(value.x, value.y, value.z);
+        else world.env[key] = value;
+      } else world.env[key] = value;
+    }
+  }
   if (Number.isFinite(data.seed)) world.seed = data.seed;
   return true;
 }
