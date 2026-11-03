@@ -214,6 +214,16 @@ export const CSS = /* css */`
   .fm-choice,.fm-input,.fm-icon-btn,.fm-seg{border-color:ButtonBorder}
   .fm-seg input:checked+label{background:Highlight;color:HighlightText}
 }
+
+.fm-saved-worlds{margin-top:14px;padding:14px 16px;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(10,15,20,.72);backdrop-filter:blur(18px)}
+.fm-saved-worlds__heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;color:#f1f4f7;font-size:12px;font-weight:750;letter-spacing:.08em;text-transform:uppercase}
+.fm-saved-worlds__heading span{color:#84919d;font-size:10px;font-weight:500;letter-spacing:0;text-transform:none}
+.fm-saved-worlds__list{display:grid;gap:7px;max-height:190px;overflow:auto}
+.fm-saved-world{width:100%;min-height:58px;padding:10px 12px;text-align:left;background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.1)}
+.fm-saved-world .fm-choice__title{font-size:13px}
+.fm-saved-world .fm-choice__desc{font-size:11px;color:#9ba7b2}
+.fm-saved-world .fm-choice__go{font-size:22px}
+
 `;
 
 export function injectStyles() {
