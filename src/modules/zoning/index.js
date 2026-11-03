@@ -160,6 +160,7 @@ export async function init(ctx) {
       if (overlay.visible) overlay.setBrush(rect, stickyBrush.type, stickyBrush.erase);
     },
     setOpacity(v) { overlay.setOpacity(v); },
+    getPaint() { grid.ensure(); return [...grid.paint.entries()]; },
     clear() { const changed = grid.clear(); return afterPaint(changed, 'clear'); },
     refresh() { grid.dirty = true; rebuildFromRoads('refresh'); },
     stats() { return { ...grid.stats, drawn: overlay.visible ? 1 : 0, version: world.zones.version, frames: grid.frames.length, ground: ground ? ground.stats : null }; },
