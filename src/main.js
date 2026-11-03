@@ -8,7 +8,7 @@ import { AssetLoader } from './core/AssetLoader.js';
 import { installDebugAPI } from './core/DebugAPI.js';
 import { MODULES } from './modules/registry.js';
 import { makeRng } from './shared/random.js';
-import { loadCity } from './core/SaveSystem.js';
+import { createWorld, getSavedCity, applyCityState, restoreRoads, restoreZones, restoreBuildings, saveCity } from './core/SaveSystem.js';
 
 const loadingBar = document.getElementById('loading-bar');
 const loadingStatus = document.getElementById('loading-status');
@@ -91,6 +91,17 @@ async function boot() {
         error: String(err && err.stack || err)
       };
     }
+  }
+
+  let activeWorldId = null;
+  let pendingSaveData = null;
+  if (ctx.startChoice && ctx.startChoice.mode === 'load') {
+    activeWorldId = ctx.startChoice.worldId;
+    pendingSaveData = getSavedCity(activeWorldId);
+    if (pendingSaveData) applyCityState(world, pendingSaveData);
+  } else if (ctx.startChoice && ctx.startChoice.mode !== 'demo') {
+    const record = createWorld(ctx.startChoice.cityName, ctx.startChoice.seed, ctx.startChoice.mode);
+    activeWorldId = record.id;
   }
 
   const list = [...MODULES]
@@ -236,23 +247,36 @@ async function boot() {
     }
   }
 
-  if (localStorage.getItem('fableCitiesSave')) {
+  if (pendingSaveData) {
     try {
-      const loaded = loadCity(world);
-
-      if (loaded) {
-        if (Number.isFinite(loaded.seed)) {
-          world.seed = loaded.seed;
-          config.seed = loaded.seed;
-          world.rng = makeRng(loaded.seed);
-        }
-
-        events.emit('city:loaded', loaded);
+      if (Number.isFinite(pendingSaveData.seed)) {
+        world.seed = pendingSaveData.seed;
+        config.seed = pendingSaveData.seed;
+        world.rng = makeRng(pendingSaveData.seed);
       }
+      restoreRoads(world, pendingSaveData);
+      restoreZones(world, pendingSaveData);
+      restoreBuildings(world, pendingSaveData);
+      events.emit('city:loaded', pendingSaveData);
     } catch (err) {
       console.error('[main] saved city failed to load', err);
     }
   }
+
+  let saveElapsed = 0;
+  engine.onUpdate((dt) => {
+    if (!activeWorldId || !debug.ready) return;
+    saveElapsed += dt;
+    if (saveElapsed >= 5) {
+      saveElapsed = 0;
+      saveCity(world, activeWorldId);
+    }
+  });
+  const saveBeforeExit = () => {
+    if (activeWorldId && debug.ready) saveCity(world, activeWorldId);
+  };
+  window.addEventListener('pagehide', saveBeforeExit);
+  window.addEventListener('beforeunload', saveBeforeExit);
 
   debug.setCamera(config.cam, true) ||
     debug.setCamera('city', true);
