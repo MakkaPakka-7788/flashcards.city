@@ -24,7 +24,7 @@ import { injectStyles } from './styles.js';
 import { suggestName, randomSeed } from './names.js';
 import { makeHeightSource } from './heightsource.js';
 import { paintRelief } from './Minimap.js';
-import { listWorlds, setActiveWorld, importLegacySave } from '../../core/SaveSystem.js';
+import { listWorlds, setActiveWorld, renameWorld, deleteWorld, importLegacySave } from '../../core/SaveSystem.js';
 
 export const name = 'menu';
 
@@ -203,6 +203,35 @@ export function showStartScreen(ctx, opts = {}) {
       arrow.className = 'fm-choice__go';
       arrow.textContent = '›';
       button.append(body, arrow);
+      const actions = document.createElement('div');
+      actions.className = 'fm-saved-world__actions';
+      const rename = document.createElement('button');
+      rename.type = 'button';
+      rename.className = 'fm-saved-world__action';
+      rename.textContent = 'Rename';
+      rename.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const next = window.prompt('Name this world', saved.name || 'My City');
+        if (next && renameWorld(saved.id, next)) {
+          title.textContent = next.trim().slice(0, 28);
+          saved.name = next.trim().slice(0, 28);
+        }
+      });
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'fm-saved-world__action fm-saved-world__action--delete';
+      remove.textContent = 'Delete';
+      remove.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (window.confirm('Delete "' + (saved.name || 'this world') + '" permanently from this browser?')) {
+          deleteWorld(saved.id);
+          section.remove();
+        }
+      });
+      actions.append(rename, remove);
+      const card = document.createElement('div');
+      card.className = 'fm-saved-world__card';
+      card.append(button, actions);
       button.addEventListener('click', () => {
         if (!setActiveWorld(saved.id)) return;
         world.time.paused = wasPaused;
@@ -214,7 +243,7 @@ export function showStartScreen(ctx, opts = {}) {
           resolve({ mode: 'load', seed: saved.seed, cityName: saved.name, worldId: saved.id, quality: currentQuality });
         }
       });
-      list.appendChild(button);
+      list.appendChild(card);
     }
     section.append(heading, list);
     root.querySelector('.fm-choices')?.after(section);
