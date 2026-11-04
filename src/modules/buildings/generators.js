@@ -515,12 +515,9 @@ function apartment(b, lot, rng, mass, det) {
   const L = b.level, w = lot.w, d = lot.d, seed = rng();
   // Apartment slabs use nearly the whole zoned parcel. Keep only a modest entrance
   // setback and narrow side clearances so larger road tiers produce genuinely larger buildings.
-  const sm = Math.min(1.8, Math.max(0.7, w * 0.025));
-  const fm = Math.min(2.6, Math.max(1.2, d * 0.035));
-  const bm = Math.min(1.6, Math.max(0.8, d * 0.02));
-  const hw = Math.max(4, w - 2 * sm);
-  const hd = Math.max(4, d - fm - bm);
-  const hz = d / 2 - fm - hd / 2;
+  const hw = w;
+  const hd = d;
+  const hz = 0;
   const maxF = Math.min(60, 3 + Math.floor((w * d) / 70));
   const rank = lot.roadRank || 1;
   const grandTowerBonus = rank >= 5 && L >= 5
@@ -636,10 +633,9 @@ function awning(det, x, y, z, wid, col, rng) {
 // com-low: shops
 function shop(b, lot, rng, mass, det) {
   const L = b.level, w = lot.w, d = lot.d, seed = rng();
-  const sm = rng.range(0.5, 1.1), fm = 0.8;
-  const hw = w - 2 * sm;
-  const hd = Math.min(Math.max(8, d * rng.range(0.55, 0.72)), (lot.roadRank || 1) >= 5 ? 42 : 22);
-  const hz = d / 2 - fm - hd / 2;
+  const hw = w;
+  const hd = d;
+  const hz = 0;
   const floors = [1, rng.int(1, 2), 2, rng.int(2, 3), 3][L - 1];
   const groundH = 4.2, floorH = 3.2;
   const wallH = groundH + (floors - 1) * floorH + 0.55;
@@ -694,7 +690,7 @@ function shop(b, lot, rng, mass, det) {
 // com-high: mixed-use towers on a retail podium
 function mixed(b, lot, rng, mass, det) {
   const L = b.level, w = lot.w, d = lot.d, seed = rng();
-  const pw = w - 2.4, pd = d - 2.2, pz = d / 2 - 1.2 - pd / 2;
+  const pw = w, pd = d, pz = 0;
   const pf = L <= 2 ? 2 : 3;
   const groundH = 4.5, floorH = 3.6;
   const podH = groundH + (pf - 1) * floorH + 0.6;
@@ -758,7 +754,7 @@ function mixed(b, lot, rng, mass, det) {
 // office: curtain-wall towers with setbacks
 function office(b, lot, rng, mass, det) {
   const L = b.level, w = lot.w, d = lot.d, seed = rng();
-  const bw = Math.min(w - 4, 40), bd = Math.min(d - 5, 32), bz = d / 2 - 3.2 - bd / 2;
+  const bw = w, bd = d, bz = 0;
   const floorH = 3.7, groundH = 4.6;
   const maxF = 8 + Math.floor((w * d) / 24);
   let top;
@@ -856,9 +852,9 @@ function office(b, lot, rng, mass, det) {
 function industrial(b, lot, rng, mass, det) {
   const L = b.level, w = lot.w, d = lot.d, seed = rng();
   P(mass, 'plane', 'yard_asphalt', 0, 0.04, 0, w - 0.6, 1, d - 0.6, { color: [0.52, 0.52, 0.52] });
-  const sm = rng.range(2.5, 4);
-  const hw = Math.min(w - 2 * sm, 44), hd = Math.min(Math.max(10, d * rng.range(0.48, 0.62)), 26);
-  const hz = -d / 2 + 2.5 + hd / 2;
+  const sm = 0;
+  const hw = w, hd = d;
+  const hz = 0;
   const hallH = [5.5, 6.5, 8, 9.5, 11][L - 1] + rng.range(-0.5, 0.8);
   const modern = L >= 4;
   const mat = L <= 2 ? rng.pick(['brick_red', 'concrete_wall', 'corrugated']) : L === 3 ? rng.pick(['corrugated', 'corrugated', 'concrete']) : rng.pick(['plaster', 'corrugated', 'plaster']);
