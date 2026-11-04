@@ -134,3 +134,19 @@ export function importLegacySave() {
   const record = createWorld(data.cityName || 'My City', data.seed || 1337);
   const worlds = readWorlds(); worlds[record.id].data = data; writeWorlds(worlds);
 }
+
+
+export function hasSavedCity() {
+  return Boolean(getSavedCity(getActiveWorldId()));
+}
+
+export function deleteSavedCity() {
+  const activeId = getActiveWorldId();
+  if (activeId) return deleteWorld(activeId);
+  try {
+    localStorage.removeItem(LEGACY_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
