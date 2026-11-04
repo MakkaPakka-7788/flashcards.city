@@ -513,8 +513,13 @@ function house(b, lot, rng, mass, det) {
 // res-high: apartment blocks
 function apartment(b, lot, rng, mass, det) {
   const L = b.level, w = lot.w, d = lot.d, seed = rng();
-  const sm = rng.range(1.4, 2.4), fm = rng.range(2.6, 4.2), bm = rng.range(2.4, 4);
-  const hw = Math.min(w - 2 * sm, 42), hd = Math.min(d - fm - bm, 24);
+  // Apartment slabs use nearly the whole zoned parcel. Keep only a modest entrance
+  // setback and narrow side clearances so larger road tiers produce genuinely larger buildings.
+  const sm = Math.min(1.8, Math.max(0.7, w * 0.025));
+  const fm = Math.min(2.6, Math.max(1.2, d * 0.035));
+  const bm = Math.min(1.6, Math.max(0.8, d * 0.02));
+  const hw = Math.max(4, w - 2 * sm);
+  const hd = Math.max(4, d - fm - bm);
   const hz = d / 2 - fm - hd / 2;
   const maxF = Math.min(60, 3 + Math.floor((w * d) / 70));
   const rank = lot.roadRank || 1;
