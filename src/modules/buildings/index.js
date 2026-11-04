@@ -138,10 +138,10 @@ function demandFor(type) {
   const eco = ctxRef.world.economy;
   const d = eco && eco.demand ? eco.demand[DEMAND_KEY[type]] : null;
   const v = Number.isFinite(d) ? d : 0.5;
-  // Floor, not a timer: with the demand meter on the floor a lot still fills eventually
-  // (100 game hours) so a temporary economic dip cannot freeze the city for good, but that
-  // is 12× slower than the same lot at full demand. Growth follows the demand bars.
-  return Math.max(0.10, Math.min(1.25, v * 1.5));
+  // Residential demand can start at zero in a new city because there are no residents yet.
+  // Keep a minimum so residential zones can create the population that generates demand.
+  const minimum = type === 'res-low' || type === 'res-high' ? 0.65 : 0.10;
+  return Math.max(minimum, Math.min(1.25, v * 1.5));
 }
 
 function currentLots() {
@@ -392,7 +392,9 @@ function growthStep(dt) {
   for (const lot of lots) {
     if (lot.buildingId != null || byLot.has(lot.id)) continue;
     if (!TYPES.includes(lot.type)) continue;
-    const p = (hours / MEAN_FILL_HOURS) * demandFor(lot.type) * growthRate * boost;
+    const residential = lot.type === 'res-low' || lot.type === 'res-high';
+    const residentialBoost = residential ? 3 : 1;
+    const p = Math.min(1, (hours / MEAN_FILL_HOURS) * demandFor(lot.type) * growthRate * boost * residentialBoost);
     if (rng() >= p) continue;
     const t = ctxRef.world.terrain;
     if (t && typeof t.isWater === 'function' && t.isWater(lot.x, lot.z)) continue;
