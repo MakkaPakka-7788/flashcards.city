@@ -175,79 +175,91 @@ export function showStartScreen(ctx, opts = {}) {
 
   importLegacySave();
   const savedWorlds = listWorlds();
-  if (savedWorlds.length) {
-    const section = document.createElement('section');
-    section.className = 'fm-saved-worlds';
-    const heading = document.createElement('div');
-    heading.className = 'fm-saved-worlds__heading';
-    heading.textContent = 'Continue a world';
-    const note = document.createElement('span');
-    note.textContent = 'Saved on this device';
-    heading.appendChild(note);
-    const list = document.createElement('div');
-    list.className = 'fm-saved-worlds__list';
-    for (const saved of savedWorlds) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'fm-choice fm-saved-world';
-      const body = document.createElement('span');
-      body.className = 'fm-choice__body';
-      const title = document.createElement('span');
-      title.className = 'fm-choice__title';
-      title.textContent = saved.name || 'Untitled world';
-      const desc = document.createElement('span');
-      desc.className = 'fm-choice__desc';
-      desc.textContent = saved.updatedAt ? new Date(saved.updatedAt).toLocaleString() : 'Saved world';
-      body.append(title, desc);
-      const arrow = document.createElement('span');
-      arrow.className = 'fm-choice__go';
-      arrow.textContent = '›';
-      button.append(body, arrow);
-      const actions = document.createElement('div');
-      actions.className = 'fm-saved-world__actions';
-      const rename = document.createElement('button');
-      rename.type = 'button';
-      rename.className = 'fm-saved-world__action';
-      rename.textContent = 'Rename';
-      rename.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const next = window.prompt('Name this world', saved.name || 'My City');
-        if (next && renameWorld(saved.id, next)) {
-          title.textContent = next.trim().slice(0, 28);
-          saved.name = next.trim().slice(0, 28);
-        }
-      });
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'fm-saved-world__action fm-saved-world__action--delete';
-      remove.textContent = 'Delete';
-      remove.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (window.confirm('Delete "' + (saved.name || 'this world') + '" permanently from this browser?')) {
-          deleteWorld(saved.id);
-          section.remove();
-        }
-      });
-      actions.append(rename, remove);
-      const card = document.createElement('div');
-      card.className = 'fm-saved-world__card';
-      card.append(button, actions);
-      button.addEventListener('click', () => {
-        if (!setActiveWorld(saved.id)) return;
-        world.time.paused = wasPaused;
-        enterLoading('load', saved.seed, saved.name);
-        watchCoreProgress(events);
-        if (resolveChoice) {
-          const resolve = resolveChoice;
-          resolveChoice = null;
-          resolve({ mode: 'load', seed: saved.seed, cityName: saved.name, worldId: saved.id, quality: currentQuality });
-        }
-      });
-      list.appendChild(card);
-    }
-    section.append(heading, list);
-    root.querySelector('.fm-choices')?.after(section);
+  const section = document.createElement('section');
+  section.className = 'fm-saved-worlds';
+  const heading = document.createElement('div');
+  heading.className = 'fm-saved-worlds__heading';
+  heading.textContent = 'Saved worlds';
+  const note = document.createElement('span');
+  note.textContent = 'Saved on this device';
+  heading.appendChild(note);
+  const list = document.createElement('div');
+  list.className = 'fm-saved-worlds__list';
+
+  if (!savedWorlds.length) {
+    const empty = document.createElement('div');
+    empty.className = 'fm-saved-worlds__empty';
+    empty.textContent = 'No saved worlds yet. Start a New city, build your world, and it will appear here automatically.';
+    list.appendChild(empty);
   }
+
+  for (const saved of savedWorlds) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'fm-choice fm-saved-world';
+    const body = document.createElement('span');
+    body.className = 'fm-choice__body';
+    const title = document.createElement('span');
+    title.className = 'fm-choice__title';
+    title.textContent = saved.name || 'Untitled world';
+    const desc = document.createElement('span');
+    desc.className = 'fm-choice__desc';
+    desc.textContent = saved.updatedAt ? new Date(saved.updatedAt).toLocaleString() : 'Saved world';
+    body.append(title, desc);
+    const arrow = document.createElement('span');
+    arrow.className = 'fm-choice__go';
+    arrow.textContent = '›';
+    button.append(body, arrow);
+    const actions = document.createElement('div');
+    actions.className = 'fm-saved-world__actions';
+    const rename = document.createElement('button');
+    rename.type = 'button';
+    rename.className = 'fm-saved-world__action';
+    rename.textContent = 'Rename';
+    rename.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const next = window.prompt('Name this world', saved.name || 'My City');
+      if (next && renameWorld(saved.id, next)) {
+        title.textContent = next.trim().slice(0, 28);
+        saved.name = next.trim().slice(0, 28);
+      }
+    });
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'fm-saved-world__action fm-saved-world__action--delete';
+    remove.textContent = 'Delete';
+    remove.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (window.confirm('Delete "' + (saved.name || 'this world') + '" permanently from this browser?')) {
+        deleteWorld(saved.id);
+        section.remove();
+        if (!list.children.length) {
+          const empty = document.createElement('div');
+          empty.className = 'fm-saved-worlds__empty';
+          empty.textContent = 'No saved worlds yet. Start a New city, build your world, and it will appear here automatically.';
+          list.appendChild(empty);
+        }
+      }
+    });
+    actions.append(rename, remove);
+    const card = document.createElement('div');
+    card.className = 'fm-saved-world__card';
+    card.append(button, actions);
+    button.addEventListener('click', () => {
+      if (!setActiveWorld(saved.id)) return;
+      world.time.paused = wasPaused;
+      enterLoading('load', saved.seed, saved.name);
+      watchCoreProgress(events);
+      if (resolveChoice) {
+        const resolve = resolveChoice;
+        resolveChoice = null;
+        resolve({ mode: 'load', seed: saved.seed, cityName: saved.name, worldId: saved.id, quality: currentQuality });
+      }
+    });
+    list.appendChild(card);
+  }
+  section.append(heading, list);
+  root.querySelector('.fm-choices')?.after(section);
 
   on(els.form, 'submit', (e) => { e.preventDefault(); choose('new'); });
 
