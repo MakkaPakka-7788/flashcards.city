@@ -120,7 +120,7 @@ export async function init(ctx) {
       width: t.width.slice(), depth: t.depth.slice(),
     })),
     cellSize: world.cellSize,
-    maxDepth: 4,
+    maxDepth: 8,
 
     paint(cells, zoneType) {
       if (!Array.isArray(cells)) return 0;
