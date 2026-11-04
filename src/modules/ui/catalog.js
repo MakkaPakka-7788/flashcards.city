@@ -36,8 +36,11 @@ export const ZONE_SHORT = {
 
 /** `capacity` = vehicles per hour both directions, `upkeep` = ₡ per metre per budget period (display values forwarded to tools). */
 export const ROAD_TYPES = {
-  local: { label: 'Two-Lane Road', kind: 'Street', icon: 'road', color: '#d3dbe6', cost: 180, upkeep: 2, capacity: 1200, width: 12, lanes: 2, speed: 50, desc: 'Standard street with sidewalks and street lights. Backbone of any neighbourhood.' },
-  avenue: { label: 'Four-Lane Avenue', kind: 'Avenue', icon: 'avenue', color: '#8fd0ff', cost: 420, upkeep: 4, capacity: 2800, width: 24, lanes: 4, speed: 60, desc: 'Divided avenue with a planted median. Moves heavy traffic through the city.' },
+  street: { label: 'Small Street · Level 1', kind: 'Street', icon: 'road', color: '#c4d0dc', cost: 140, upkeep: 1.5, capacity: 900, width: 9.6, lanes: 2, speed: 40, desc: 'Narrow local street for houses and small shops.' },
+  local: { label: 'Two-Lane Road · Level 2', kind: 'Street', icon: 'road', color: '#d3dbe6', cost: 180, upkeep: 2, capacity: 1200, width: 12, lanes: 2, speed: 50, desc: 'Standard street for neighbourhoods and everyday buildings.' },
+  avenue: { label: 'Four-Lane Avenue · Level 3', kind: 'Avenue', icon: 'avenue', color: '#8fd0ff', cost: 420, upkeep: 4, capacity: 2800, width: 24, lanes: 4, speed: 60, desc: 'Wide divided avenue for apartments and busy shops.' },
+  boulevard: { label: 'Boulevard · Level 4', kind: 'Boulevard', icon: 'avenue', color: '#70b8ed', cost: 680, upkeep: 6, capacity: 3600, width: 31.2, lanes: 4, speed: 65, desc: 'Extra-wide boulevard for large blocks and high-density districts.' },
+  grand: { label: 'Grand Avenue · Level 5', kind: 'Grand Avenue', icon: 'avenue', color: '#4c9bd9', cost: 980, upkeep: 9, capacity: 5200, width: 39.6, lanes: 4, speed: 70, desc: 'The widest zonable road. Supports the largest mall plots and tallest apartment blocks.' },
   highway: { label: 'Highway', kind: 'Highway', icon: 'highway', color: '#ffb35c', cost: 900, upkeep: 8, capacity: 6000, width: 32, lanes: 6, speed: 100, desc: 'High-speed, no pedestrians, no zoning. Connect districts and the outside world.' },
   path: { label: 'Pedestrian Path', kind: 'Footpath', icon: 'path', color: '#9fe38f', cost: 60, upkeep: 0.5, capacity: 0, width: 3, lanes: 0, speed: 5, desc: 'Paved walkway for citizens. Boosts land value and park access.' },
 };
@@ -72,7 +75,7 @@ export const INFO_VIEWS = {
 export const CATEGORIES = [
   {
     id: 'roads', label: 'Roads', icon: 'crossroads', key: '1', color: '#9fc4e8',
-    desc: 'Two-lane roads, avenues, highways and paths.',
+    desc: 'Five road levels, from small streets to grand avenues, plus highways and paths.',
     items: Object.entries(ROAD_TYPES).map(([id, r]) => ({
       id, tool: 'road', label: r.label, icon: r.icon, color: r.color, cost: r.cost, unit: '/m', desc: r.desc,
       stats: [`${r.lanes ? r.lanes + ' lanes' : 'walk only'}`, `${r.speed} km/h`, `${r.width} m wide`],
