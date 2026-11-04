@@ -246,7 +246,7 @@ export class RoadNetwork {
     const id = 's' + this._nextSeg++;
     const length = curve.getLength();
     const seg = {
-      id, a: nodeA.id, b: nodeB.id, type: type.id, width: type.width, length, curve,
+      id, a: nodeA.id, b: nodeB.id, type: type.id, rank: type.rank || 1, width: type.width, length, curve,
       points: [], lanes: [], pedestrianLanes: [],
       trimA: 0, trimB: 0, gapA: 0, gapB: 0, capA: true, capB: true, bridgeA: false, bridgeB: false,
       kindA: 'dead', kindB: 'dead', flagsA: 0, flagsB: 0,
