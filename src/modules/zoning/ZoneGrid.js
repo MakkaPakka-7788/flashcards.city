@@ -3,7 +3,7 @@
  *
  * Every zonable road segment owns two *frames* (left / right side). A frame is a strip of oriented
  * cells: `count` columns of `cellSize` metres measured along the sidewalk outer edge, each up to
- * DEPTH (4) cells deep, stepping outwards along the edge normal. Cells are therefore rotated with
+ * DEPTH (12) cells deep, stepping outwards along the edge normal. Cells are therefore rotated with
  * the road and follow curves as trapezoids (exactly like CS2's grid). Cells that overlap a road
  * footprint (rasterised from `segment.points`), water or a steeper cell of another frame are removed.
  *
@@ -15,7 +15,7 @@
 import { hash2, hashString, makeRng } from '../../shared/random.js';
 import { ZONE_BY_INDEX, zoneIndexOf } from './ZoneTypes.js';
 
-export const DEPTH = 8;
+export const DEPTH = 12;
 const EDGE_STEP = 2; // metres between road-edge samples
 const MIN_AREA_FRAC = 0.42; // drop cells squashed below this fraction of a full cell (inner side of tight curves)
 const CONFLICT_DIST = 6.4; // centre distance below which two cells of different frames are considered overlapping
@@ -160,7 +160,7 @@ export class ZoneGrid {
     const Le = es[n - 1];
     const count = Math.floor(Le / CELL + 1e-6);
     if (count < 1) return null;
-    const frame = { seg: seg.id, side, count, maxDepth: Math.min(8, Math.max(4, (seg.rank || 1) + 3)), rank: seg.rank || 1, cells: new Array(count * DEPTH).fill(null), s: new Float64Array(count + 1), edgeY: new Float64Array(count + 1), length: Le, width: seg.width, type: seg.type, sign: 1 };
+    const frame = { seg: seg.id, side, count, maxDepth: Math.min(12, 2 + (Math.max(1, Math.min(5, seg.rank || 1)) * 2)), rank: seg.rank || 1, cells: new Array(count * DEPTH).fill(null), s: new Float64Array(count + 1), edgeY: new Float64Array(count + 1), length: Le, width: seg.width, type: seg.type, sign: 1 };
     let cursor = 1;
     const edgeAt = (s, out) => {
       while (cursor < n - 1 && es[cursor] < s) cursor++;
