@@ -276,7 +276,8 @@ function spawn(lot, opts = {}) {
   const type = TYPES.includes(lot.type) ? lot.type : 'res-low';
   const id = nextId++;
   const seed = Number.isFinite(opts.seed) ? opts.seed | 0 : hash2(baseSeed, id);
-  const level = Math.max(1, Math.min(5, Math.round(opts.level || 1)));
+  const roadLevelCap = Math.min(5, Math.max(2, (lot.roadRank || 1) + 1));
+  const level = Math.max(1, Math.min(roadLevelCap, Math.round(opts.level || 1)));
   const site = siteLevel(lot);
   const state = opts.state === 'construction' || (opts.state == null && opts.built !== true) ? 'construction' : 'built';
   const progress = state === 'built' ? 1 : Math.max(0, Math.min(0.999, opts.progress || 0));
@@ -323,7 +324,8 @@ function remove(id) {
 function setLevel(id, level) {
   const e = entries.get(id);
   if (!e) return null;
-  level = Math.max(1, Math.min(5, Math.round(level)));
+  const roadLevelCap = Math.min(5, Math.max(2, ((e.lot && e.lot.roadRank) || 1) + 1));
+  level = Math.max(1, Math.min(roadLevelCap, Math.round(level)));
   if (level === e.b.level) return e.b;
   const up = level > e.b.level;
   e.b.level = level;
