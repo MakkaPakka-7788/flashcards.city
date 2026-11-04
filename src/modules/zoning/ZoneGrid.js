@@ -15,7 +15,7 @@
 import { hash2, hashString, makeRng } from '../../shared/random.js';
 import { ZONE_BY_INDEX, zoneIndexOf } from './ZoneTypes.js';
 
-export const DEPTH = 4;
+export const DEPTH = 8;
 const EDGE_STEP = 2; // metres between road-edge samples
 const MIN_AREA_FRAC = 0.42; // drop cells squashed below this fraction of a full cell (inner side of tight curves)
 const CONFLICT_DIST = 6.4; // centre distance below which two cells of different frames are considered overlapping
@@ -160,7 +160,7 @@ export class ZoneGrid {
     const Le = es[n - 1];
     const count = Math.floor(Le / CELL + 1e-6);
     if (count < 1) return null;
-    const frame = { seg: seg.id, side, count, cells: new Array(count * DEPTH).fill(null), s: new Float64Array(count + 1), edgeY: new Float64Array(count + 1), length: Le, width: seg.width, type: seg.type, sign: 1 };
+    const frame = { seg: seg.id, side, count, maxDepth: Math.min(8, Math.max(4, (seg.rank || 1) + 3)), rank: seg.rank || 1, cells: new Array(count * DEPTH).fill(null), s: new Float64Array(count + 1), edgeY: new Float64Array(count + 1), length: Le, width: seg.width, type: seg.type, sign: 1 };
     let cursor = 1;
     const edgeAt = (s, out) => {
       while (cursor < n - 1 && es[cursor] < s) cursor++;
@@ -485,7 +485,7 @@ export class ZoneGrid {
         if (!front || !front.type) continue;
         const T = front.type;
         let d = 1;
-        while (d < DEPTH) { const c = fr.cells[i * DEPTH + d]; if (!c || c.type !== T) break; d++; }
+        while (d < fr.maxDepth) { const c = fr.cells[i * DEPTH + d]; if (!c || c.type !== T) break; d++; }
         colDepth[i] = d; colType[i] = T;
       }
       let i = 0;
@@ -500,7 +500,7 @@ export class ZoneGrid {
         // shallowest column it spans. Dynamic programming over the widths 2…4 maximises the number of
         // painted cells that actually become buildable parcels (no zoned cell is stranded unless the
         // geometry makes it impossible), while the seeded width preference keeps the type's character.
-        const depthAt = (p, w) => { let dd = DEPTH; for (let j = p; j < p + w; j++) dd = Math.min(dd, colDepth[i + j]); return dd; };
+        const depthAt = (p, w) => { let dd = fr.maxDepth; for (let j = p; j < p + w; j++) dd = Math.min(dd, colDepth[i + j]); return dd; };
         const wantAt = (p) => {
           const a0 = fr.cells[(i + p) * DEPTH].corners;
           const rng = makeRng(hash2(hashString(`${Math.round(a0[0])},${Math.round(a0[1])},${T}`), this.world.seed | 0));
@@ -512,7 +512,7 @@ export class ZoneGrid {
           if (L - p < 2) { best[p] = -1.5; continue; } // a single leftover column can never be a lot
           const want = wantAt(p);
           let bs = -1e9, bw = 0;
-          for (let w = 2; w <= Math.min(DEPTH, L - p); w++) {
+          for (let w = 2; w <= Math.min(fr.maxDepth, L - p); w++) {
             const dd = depthAt(p, w);
             let sc = w * dd + best[p + w];
             if (w < rec.width[0] || w > rec.width[1]) sc -= 1.2;
@@ -523,7 +523,7 @@ export class ZoneGrid {
         }
         for (let p = 0; p < L && choice[p]; ) {
           const w = choice[p];
-          const d = Math.max(2, Math.min(depthAt(p, w), DEPTH));
+          const d = Math.max(2, Math.min(depthAt(p, w), fr.maxDepth));
           const lot = this._makeLot(fr, i + p, w, d, T, prev, byKey);
           lot.index = lots.length;
           lots.push(lot);
@@ -597,6 +597,7 @@ export class ZoneGrid {
     lot.width = w; lot.depth = d; lot.i0 = i0;
     lot.yaw = yaw;
     lot.type = ZONE_BY_INDEX[T].id;
+    lot.roadRank = fr.rank;
     lot.roadSegmentId = fr.seg;
     lot.side = fr.side;
     const fy = fr.edgeY ? (fr.edgeY[i0] + fr.edgeY[i0 + w]) * 0.5 : y;
