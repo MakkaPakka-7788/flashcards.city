@@ -709,13 +709,8 @@ function mixed(b, lot, rng, mass, det) {
   // tower
   // plan archetype: thin slab, square point tower or a chunky block — plus a random 90 deg turn.
   // Forty clones of one extrusion is what made our downtown read as a carpet of boxes.
-  const planRoll = rng();
-  let tw, td;
-  if (planRoll < 0.32) { tw = pw * rng.range(0.80, 0.94); td = pd * rng.range(0.34, 0.48); }
-  else if (planRoll < 0.62) { tw = pw * rng.range(0.44, 0.58); td = pd * rng.range(0.46, 0.62); }
-  else { tw = pw * rng.range(0.58, 0.80); td = pd * rng.range(0.62, 0.88); }
-  if (planRoll < 0.32 && rng.chance(0.45)) { const t = tw; tw = Math.min(pw * 0.92, td); td = Math.min(pd * 0.92, t); }
-  const tx = rng.range(-(pw - tw) / 2 + 0.5, (pw - tw) / 2 - 0.5), tz = pz + rng.range(-(pd - td) / 2 + 0.5, (pd - td) / 2 - 0.5);
+  const tw = pw, td = pd;
+  const tx = 0, tz = pz;
   const maxF = 5 + Math.floor((w * d) / 32);
   const tf = Math.max(4, Math.min(maxF, [5, 8, 12, 18, 26][L - 1] + rng.int(-1, 3)));
   const tFloorH = 3.1;
