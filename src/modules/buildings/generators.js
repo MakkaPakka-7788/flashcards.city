@@ -516,9 +516,13 @@ function apartment(b, lot, rng, mass, det) {
   const sm = rng.range(1.4, 2.4), fm = rng.range(2.6, 4.2), bm = rng.range(2.4, 4);
   const hw = Math.min(w - 2 * sm, 42), hd = Math.min(d - fm - bm, 24);
   const hz = d / 2 - fm - hd / 2;
-  const maxF = 3 + Math.floor((w * d) / 70);
-  const roadBonus = (lot.roadRank || 1) >= 5 ? 6 : 0;
-  const floors = Math.max(3, Math.min(maxF, [3, 5, 8, 12, 18][L - 1] + roadBonus + rng.int(-1, 2)));
+  const maxF = Math.min(60, 3 + Math.floor((w * d) / 70));
+  const rank = lot.roadRank || 1;
+  const grandTowerBonus = rank >= 5 && L >= 5
+    ? Math.min(40, Math.max(22, Math.round((w * d) / 105)))
+    : rank >= 5 ? 6 : 0;
+  const baseFloors = [3, 5, 8, 12, 18][L - 1];
+  const floors = Math.max(3, Math.min(maxF, baseFloors + grandTowerBonus + rng.int(-1, 2)));
   const floorH = 3.0;
   const retail = L >= 3 && lot.avenue && rng.chance(0.7);
   const groundH = retail ? 4.2 : 3.4;
