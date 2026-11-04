@@ -8,9 +8,9 @@
  */
 export const ZONE_TYPES = [
   { id: 'res-low', index: 1, label: 'Low-density residential', color: '#4ad19a', width: [2, 3], depth: [2, 4], demand: 'residential' },
-  { id: 'res-high', index: 2, label: 'High-density residential', color: '#1f9d63', width: [3, 4], depth: [3, 4], demand: 'residential' },
+  { id: 'res-high', index: 2, label: 'High-density residential', color: '#1f9d63', width: [3, 8], depth: [3, 8], demand: 'residential' },
   { id: 'com-low', index: 3, label: 'Low-density commercial', color: '#62c6ff', width: [2, 4], depth: [2, 4], demand: 'commercial' },
-  { id: 'com-high', index: 4, label: 'High-density commercial', color: '#2b6fdc', width: [3, 4], depth: [3, 4], demand: 'commercial' },
+  { id: 'com-high', index: 4, label: 'High-density commercial', color: '#2b6fdc', width: [3, 8], depth: [3, 8], demand: 'commercial' },
   { id: 'ind', index: 5, label: 'Industrial', color: '#f1b634', width: [3, 4], depth: [3, 4], demand: 'industrial' },
   { id: 'office', index: 6, label: 'Office', color: '#b57cf0', width: [3, 4], depth: [3, 4], demand: 'office' },
 ];
