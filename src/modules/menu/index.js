@@ -231,9 +231,13 @@ export function showStartScreen(ctx, opts = {}) {
     remove.addEventListener('click', (event) => {
       event.stopPropagation();
       if (window.confirm('Delete "' + (saved.name || 'this world') + '" permanently from this browser?')) {
-        deleteWorld(saved.id);
-        section.remove();
-        if (!list.children.length) {
+        const deleted = deleteWorld(saved.id);
+        if (!deleted) {
+          window.alert('This world could not be deleted. Please refresh and try again.');
+          return;
+        }
+        card.remove();
+        if (!list.querySelector('.fm-saved-world__card')) {
           const empty = document.createElement('div');
           empty.className = 'fm-saved-worlds__empty';
           empty.textContent = 'No saved worlds yet. Start a New city, build your world, and it will appear here automatically.';
