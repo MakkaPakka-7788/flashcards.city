@@ -159,6 +159,36 @@ export const ROAD_TYPES = {
   },
 };
 
+/** Scale an existing cross-section into a wider urban road while preserving its visual language. */
+function scaledUrbanRoad(base, id, name, factor, rank) {
+  const t = {
+    ...base, id, name, rank,
+    width: base.width * factor,
+    cwHalf: base.cwHalf * factor,
+    medianHalf: base.medianHalf * factor,
+    sidewalk: base.sidewalk * Math.min(1.35, factor),
+    laneWidth: base.laneWidth * Math.min(1.12, factor),
+    cornerRadius: base.cornerRadius * factor,
+    asphaltPts: base.asphaltPts.map(([x, y]) => [x * factor, y]),
+    centre: base.centre.map((part) => ({ ...part, pts: part.pts.map((p) => [p[0] * factor, ...p.slice(1)]) })),
+    lines: base.lines.map((line) => ({ ...line, off: line.off * factor, hw: line.hw * factor })),
+    laneOffsets: base.laneOffsets.map((v) => v * factor),
+    arrowLanes: base.arrowLanes.map((v) => v * factor),
+    pedestrianOffsets: base.pedestrianOffsets.map((v) => v * factor),
+    shoulderLat: base.shoulderLat * factor,
+    lamps: base.lamps ? { ...base.lamps, poleLat: base.lamps.poleLat * factor, arm: base.lamps.arm * factor, radius: base.lamps.radius * factor } : null,
+  };
+  return t;
+}
+
+// Five buildable road tiers. The existing road profiles are extended rather than replaced,
+// so the same asphalt, kerbs, sidewalks, markings and lighting remain consistent.
+ROAD_TYPES.street = scaledUrbanRoad(ROAD_TYPES.local, 'street', 'Small street', 0.80, 1);
+ROAD_TYPES.local.rank = 2;
+ROAD_TYPES.avenue.rank = 3;
+ROAD_TYPES.boulevard = scaledUrbanRoad(ROAD_TYPES.avenue, 'boulevard', 'Boulevard', 1.30, 4);
+ROAD_TYPES.grand = scaledUrbanRoad(ROAD_TYPES.avenue, 'grand', 'Grand avenue', 1.65, 5);
+
 /** Height of the asphalt surface at lateral offset `lat` relative to the centreline (crown/camber). */
 export function surfaceOffset(type, lat) {
   const p = type.asphaltPts;
