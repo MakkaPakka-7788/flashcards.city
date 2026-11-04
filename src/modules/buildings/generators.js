@@ -524,7 +524,9 @@ function apartment(b, lot, rng, mass, det) {
     ? Math.min(40, Math.max(22, Math.round((w * d) / 105)))
     : rank >= 5 ? 6 : 0;
   const baseFloors = [3, 5, 8, 12, 18][L - 1];
-  const floors = Math.max(3, Math.min(maxF, baseFloors + grandTowerBonus + rng.int(-1, 2)));
+  const normalFloors = Math.max(3, Math.min(maxF, baseFloors + grandTowerBonus + rng.int(-1, 2)));
+  const depthFloors = lot.depth >= 12 ? 52 : lot.depth > 8 ? 24 : lot.depth > 5 ? 10 : 0;
+  const floors = Math.max(normalFloors, depthFloors);
   const floorH = 3.0;
   const retail = L >= 3 && lot.avenue && rng.chance(0.7);
   const groundH = retail ? 4.2 : 3.4;
