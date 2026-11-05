@@ -200,8 +200,12 @@ void main() {
   }
 
   // ---- 2. the grid itself: quiet dark seam + faint rim -------------------------------------
-  float seam = band(e, 0.17, px);
-  layer(col, a, (zoned ? hue * 0.09 : vec3(0.05, 0.06, 0.07)), seam * (zoned ? 0.34 : 0.22) * soft * lod);
+  // Keep the construction grid visible on empty land, but remove internal cell seams
+  // from painted zones. Otherwise a continuous district reads as thin, disconnected strips.
+  if (!zoned) {
+    float seam = band(e, 0.17, px);
+    layer(col, a, vec3(0.05, 0.06, 0.07), seam * 0.22 * soft * lod);
+  }
   // only the *empty* grid gets a light inner rim — inside a painted zone the colour field must win
   if (!zoned) {
     float rim = band(e, 0.58, px) - band(e, 0.26, px);
