@@ -140,9 +140,20 @@
   }, true);
 })();
 </script>
+<style id="flashcard-repo-lock-style">
+#flashcard-repo-lock{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:20px;background:#080808;color:#eee;font-family:"Courier New",monospace}
+#flashcard-repo-lock *{box-sizing:border-box}
+#flashcard-repo-lock .lock-card{width:min(390px,100%);padding:30px;background:#101010;border:2px solid #555;text-align:center;box-shadow:0 12px 50px #000}
+#flashcard-repo-lock h1{font-size:24px;margin:0 0 12px}
+#flashcard-repo-lock p{color:#999;font-size:13px}
+#flashcard-repo-lock input{width:100%;margin:14px 0;padding:13px;background:#080808;border:1px solid #555;color:#eee;font:inherit}
+#flashcard-repo-lock button{width:100%;padding:12px;background:#eee;border:0;color:#111;font:bold 14px "Courier New",monospace;cursor:pointer}
+#flashcard-repo-lock .lock-error{min-height:18px;color:#ff7777}
+</style>
 </head>
 
 <body>
+<div id="flashcard-repo-lock" role="dialog" aria-modal="true" aria-labelledby="flashcard-repo-lock-title"><form class="lock-card" id="flashcard-repo-lock-form"><h1 id="flashcard-repo-lock-title">PASSWORD REQUIRED</h1><p>Enter the password to access this game.</p><input id="flashcard-repo-lock-input" type="password" placeholder="Enter password" autocomplete="off" required><p class="lock-error" id="flashcard-repo-lock-error" aria-live="polite"></p><button type="submit">UNLOCK GAME</button></form></div>
 
   <canvas id="game" tabindex="0"></canvas>
 
@@ -197,5 +208,8 @@
 
 
 <script type="module" src="https://makkapakka-7788.github.io/makkapakka/presence.js?game=flashcards.city"></script>
+<script id="flashcard-repo-lock-script">
+(()=>{const overlay=document.getElementById("flashcard-repo-lock");const form=document.getElementById("flashcard-repo-lock-form");const input=document.getElementById("flashcard-repo-lock-input");const error=document.getElementById("flashcard-repo-lock-error");if(!overlay||!form||!input||!error)return;document.documentElement.style.overflow="hidden";document.body.style.overflow="hidden";form.addEventListener("submit",e=>{e.preventDefault();if(input.value==="pness"){overlay.remove();document.documentElement.style.overflow="";document.body.style.overflow="";}else{error.textContent="Incorrect password. Try again.";input.select();}});input.focus();})();
+</script>
 </body>
 </html>
